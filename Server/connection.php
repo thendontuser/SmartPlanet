@@ -1,8 +1,8 @@
 <?php
 
-// Класс для работы с базой данных
-class DataBase
-{
+// Класс для подключения к базе данных
+class DBConnection {
+    
     // Имя хоста
     private $host;
 
@@ -19,7 +19,7 @@ class DataBase
     private $connection;
 
     // Конструктор. Инициализиурет все поля класса
-    public function __construct($host, $username, $password, $database) {
+    public function __construct(string $host, string $username, string $password, string $database) {
         $this->host = $host;
         $this->username = $username;
         $this->password = $password;
@@ -36,6 +36,11 @@ class DataBase
         catch (Exception $e) {
             echo $e->getMessage();
         }
+    }
+
+    // Возвращает объект mysqli
+    public function getConnection(): mysqli {
+        return $this->connection;
     }
     
     // Закрывает подключение
