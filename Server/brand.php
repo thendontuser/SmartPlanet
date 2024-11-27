@@ -58,4 +58,19 @@ class Brand {
         $sql = "UPDATE brand SET id = $id, name = '$name', description = '$description' WHERE id = $id";
         $connection->query($sql);
     }
+
+    // Получает данные из таблицы
+    public static function getData(mysqli $connection): array {
+        $result = [];
+        $sql = "SELECT * FROM brand";
+        
+        if ($data = $connection->query($sql)) {
+            foreach ($data as $row) {
+                $result[0] = $row["id"];
+                $result[1] = $row["name"];
+                $result[2] = $row["description"];
+            }
+        }
+        return $result;
+    }
 }

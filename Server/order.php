@@ -91,4 +91,22 @@ class Order {
         $sql = "UPDATE orders SET id = $id, user_id = $userId, date = '$date', total_amount = $totalAmount, status = '$status', shipping_address = '$shippingAddress');";
         $connection->query($sql);
     }
+
+    // Получает данные из таблицы
+    public static function getData(mysqli $connection): array {
+        $result = [];
+        $sql = "SELECT * FROM orders";
+        
+        if ($data = $connection->query($sql)) {
+            foreach ($data as $row) {
+                $result[0] = $row["id"];
+                $result[1] = $row["user_id"];
+                $result[2] = $row["date"];
+                $result[3] = $row["total_amount"];
+                $result[4] = $row["status"];
+                $result[5] = $row["shipping_address"];
+            }
+        }
+        return $result;
+    }
 }

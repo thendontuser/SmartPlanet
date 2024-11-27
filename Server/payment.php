@@ -80,4 +80,21 @@ class Payment {
         $sql = "UPDATE payments SET id = $id, order_id = $orderId, date = '$date', amount = $amount, status = $status;";
         $connection->query($sql);
     }
+
+    // Получает данные из таблицы
+    public static function getData(mysqli $connection): array {
+        $result = [];
+        $sql = "SELECT * FROM payments";
+        
+        if ($data = $connection->query($sql)) {
+            foreach ($data as $row) {
+                $result[0] = $row["id"];
+                $result[1] = $row["order_id"];
+                $result[2] = $row["date"];
+                $result[3] = $row["amount"];
+                $result[4] = $row["status"];
+            }
+        }
+        return $result;
+    }
 }

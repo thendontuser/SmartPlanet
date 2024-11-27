@@ -80,4 +80,21 @@ class User {
         $sql = "UPDATE user SET id = $id, name = '$name', surname = '$surname', phone_number = '$phone', password = '$password');";
         $connection->query($sql);
     }
+
+    // Получает данные из таблицы
+    public static function getData(mysqli $connection): array {
+        $result = [];
+        $sql = "SELECT * FROM user";
+        
+        if ($data = $connection->query($sql)) {
+            foreach ($data as $row) {
+                $result[0] = $row["id"];
+                $result[1] = $row["name"];
+                $result[2] = $row["surname"];
+                $result[3] = $row["phone_number"];
+                $result[4] = $row["password"];
+            }
+        }
+        return $result;
+    }
 }

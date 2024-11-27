@@ -91,4 +91,22 @@ class Product {
         $sql = "UPDATE product SET id = $id, name = '$name', description = '$description', price = '$price', stock_quantity = $stockQuantity, brand_id = $brandId;";
         $connection->query($sql);
     }
+
+    // Получает данные из таблицы
+    public static function getData(mysqli $connection): array {
+        $result = [];
+        $sql = "SELECT * FROM product";
+        
+        if ($data = $connection->query($sql)) {
+            foreach ($data as $row) {
+                $result[0] = $row["id"];
+                $result[1] = $row["name"];
+                $result[2] = $row["description"];
+                $result[3] = $row["price"];
+                $result[4] = $row["stock_quantity"];
+                $result[5] = $row["brand_id"];
+            }
+        }
+        return $result;
+    }
 }

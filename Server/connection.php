@@ -31,7 +31,6 @@ class DBConnection {
     public function connect() {
         try {
             $this->connection = new mysqli($this->host, $this->username, $this->password, $this->database);
-            echo "successful!";
         }
         catch (Exception $e) {
             echo $e->getMessage();

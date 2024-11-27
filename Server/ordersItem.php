@@ -69,4 +69,20 @@ class OrdersItem {
         $sql = "UPDATE orders_item SET id = $id, order_id = $orderId, product_id = $productId, price = $price;";
         $connection->query($sql);
     }
+
+    // Получает данные из таблицы
+    public static function getData(mysqli $connection): array {
+        $result = [];
+        $sql = "SELECT * FROM orders_item";
+        
+        if ($data = $connection->query($sql)) {
+            foreach ($data as $row) {
+                $result[0] = $row["id"];
+                $result[1] = $row["order_id"];
+                $result[2] = $row["product_id"];
+                $result[3] = $row["price"];
+            }
+        }
+        return $result;
+    }
 }
