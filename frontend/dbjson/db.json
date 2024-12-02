@@ -1,0 +1,11 @@
+{
+    "product":
+      {
+        "id": "",
+        "name": "",
+        "description": "",
+        "price" : 0.0,
+        "stock_quantity": 0,
+        "brand_id": 0
+      }
+}
