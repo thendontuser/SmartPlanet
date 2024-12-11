@@ -4,27 +4,31 @@
 class User {
 
     // Идентификатор пользователя
-    public $id;
+    private $id;
 
     // Имя пользователя
-    public $name;
+    private $name;
 
     // Фамилия пользователя
-    public $surname;
+    private $surname;
 
     // Номер пользователя
-    public $phoneNumber;
+    private $phoneNumber;
 
     // Пароль
-    public $password;
+    private $password;
+
+    // Логин
+    private $username;
 
     // Конструктор. Инициализирует поля класса
-    public function __construct(int $id, string $name, string $surname, string $phoneNumber, string $password) {
+    public function __construct(int $id, string $name, string $surname, string $phoneNumber, string $password, string $username) {
         $this->id = $id;
         $this->name = $name;
         $this->surname = $surname;
         $this->phoneNumber = $phoneNumber;
         $this->password = $password;
+        $this->username = $username;
     }
 
     // Возвращает идентификатор
@@ -52,14 +56,20 @@ class User {
         return $this->password;
     }
 
+    // возвращает логин пользователя
+    public function getUsername(): string {
+        return $this->username;
+    }
+
     // Добавляет нового пользователя в таблицу
     public static function add(mysqli $connection, User $user) {
         $id = $user->getId();
         $name = $user->getName();
         $surname = $user->getSurname();
         $phone = $user->getPhoneNumber();
-        $password = $user->getPassword();
-        $sql = "INSERT INTO user VALUES ($id, '$name', '$surname', '$phone', '$password');";
+        $password = hash('sha512', $user->getPassword());
+        $username = $user->getPassword();
+        $sql = "INSERT INTO user VALUES ($id, '$name', '$surname', '$phone', '$password', '$username');";
         $connection->query($sql);
     }
 
@@ -76,25 +86,16 @@ class User {
         $name = $user->getName();
         $surname = $user->getSurname();
         $phone = $user->getPhoneNumber();
-        $password = $user->getPassword();
+        $password = hash('sha512', $user->getPassword());
+        $username = $user->getUsername();
         $sql = "UPDATE user SET id = $id, name = '$name', surname = '$surname', phone_number = '$phone', password = '$password');";
         $connection->query($sql);
     }
 
     // Получает данные из таблицы
     public static function getData(mysqli $connection): array {
-        $result = [];
         $sql = "SELECT * FROM user";
-        
-        if ($data = $connection->query($sql)) {
-            foreach ($data as $row) {
-                $result[0] = $row["id"];
-                $result[1] = $row["name"];
-                $result[2] = $row["surname"];
-                $result[3] = $row["phone_number"];
-                $result[4] = $row["password"];
-            }
-        }
-        return $result;
+        $data = $connection->query($sql);
+        return $data->fetch_all(MYSQLI_NUM);
     }
 }

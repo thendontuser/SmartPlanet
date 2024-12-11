@@ -94,19 +94,8 @@ class Order {
 
     // Получает данные из таблицы
     public static function getData(mysqli $connection): array {
-        $result = [];
         $sql = "SELECT * FROM orders";
-        
-        if ($data = $connection->query($sql)) {
-            foreach ($data as $row) {
-                $result[0] = $row["id"];
-                $result[1] = $row["user_id"];
-                $result[2] = $row["date"];
-                $result[3] = $row["total_amount"];
-                $result[4] = $row["status"];
-                $result[5] = $row["shipping_address"];
-            }
-        }
-        return $result;
+        $data = $connection->query($sql);
+        return $data->fetch_all(MYSQLI_NUM);
     }
 }

@@ -72,17 +72,8 @@ class OrdersItem {
 
     // Получает данные из таблицы
     public static function getData(mysqli $connection): array {
-        $result = [];
         $sql = "SELECT * FROM orders_item";
-        
-        if ($data = $connection->query($sql)) {
-            foreach ($data as $row) {
-                $result[0] = $row["id"];
-                $result[1] = $row["order_id"];
-                $result[2] = $row["product_id"];
-                $result[3] = $row["price"];
-            }
-        }
-        return $result;
+        $data = $connection->query($sql);
+        return $data->fetch_all(MYSQLI_NUM);
     }
 }

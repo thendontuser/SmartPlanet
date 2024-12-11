@@ -61,16 +61,8 @@ class Brand {
 
     // Получает данные из таблицы
     public static function getData(mysqli $connection): array {
-        $result = [];
         $sql = "SELECT * FROM brand";
-        
-        if ($data = $connection->query($sql)) {
-            foreach ($data as $row) {
-                $result[0] = $row["id"];
-                $result[1] = $row["name"];
-                $result[2] = $row["description"];
-            }
-        }
-        return $result;
+        $data = $connection->query($sql);
+        return $data->fetch_all(MYSQLI_NUM);
     }
 }
