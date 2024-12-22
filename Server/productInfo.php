@@ -1,6 +1,6 @@
 <?php
 
-// Файля для запуска сервера
+// Файл для запуска сервера
 
 include 'connection.php';
 include 'brand.php';
@@ -10,7 +10,7 @@ include 'product.php';
 $connection = new DBConnection('localhost', 'root', '', 'thendont');
 $connection->connect();
 $record_id = $_GET['id'];
-$product = Product::getData($connection->getConnection());
+$product = Product::getProduct($connection->getConnection(), (int)$record_id);
 
 // Disable CORS
 header('Content-Type: application/json');

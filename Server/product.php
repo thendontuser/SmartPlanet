@@ -22,20 +22,17 @@ class Product {
     private $brandId;
 
     // Путь к изображению
-    private $imageName;
-
-    private $imageDirectory;
+    private $filePath;
 
     // Конструктор. Инициализирует поля класса
-    public function __construct(int $id, string $name, string $description, float $price, int $stockQuantity, int $brandId, string $imageName) {
+    public function __construct(int $id, string $name, string $description, float $price, int $stockQuantity, int $brandId, string $filePath) {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
         $this->price = $price;
         $this->stockQuantity = $stockQuantity;
         $this->brandId = $brandId;
-        $this->imageName = $imageName;
-        $this->imageDirectory = 'C:\Users\andrk\Desktop\лабы\3 курс 1 семестр\web\курсач\frontend\images';
+        $this->filePath = $filePath;
     }
 
     // Возвращает идентификатор
@@ -69,72 +66,24 @@ class Product {
     }
 
     // Возвращает путь к изображению
-    public function getImageName(): string {
-        return $this->imageName;
+    public function getFilePath(): string {
+        return $this->filePath;
     }
 
-    public function getImage(mysqli $connection, string $imgName): string {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['image'])) {
-            $targetDir = $this->imageDirectory; // Директория для загрузки изображений
-            $targetFile = $targetDir.basename($_FILES['image'][$imgName]);
-            $uploadOk = 1;
-            $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-     
-            // Проверка, является ли файл изображением
-            $check = getimagesize($_FILES['image']['tmp_name']);
-            if ($check !== false) {
-                echo "Файл является изображением - " . $check['mime'] . ".";
-                $uploadOk = 1;
-            } else {
-                echo "Файл не является изображением.";
-                $uploadOk = 0;
-            }
-     
-            // Проверка на наличие ошибок при загрузке
-            if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-                echo "Ошибка при загрузке файла.";
-                $uploadOk = 0;
-            }
-     
-            // Проверка на существование файла
-            if (file_exists($targetFile)) {
-                echo "Изображение уже существует.";
-                $uploadOk = 0;
-            }
-     
-            // Ограничение на размер файла (например, 5MB)
-            if ($_FILES['image']['size'] > 5000000) {
-                echo "Изображение слишком большое.";
-                $uploadOk = 0;
-            }
-     
-            // Разрешенные форматы файлов
-            if (!in_array($imageFileType, ['jpg', 'png', 'jpeg', 'gif'])) {
-                echo "Разрешены только файлы JPG, JPEG, PNG и GIF.";
-                $uploadOk = 0;
-            }
-     
-            // Если все проверки пройдены, загружаем файл
-            if ($uploadOk == 1) {
-                if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-                    return $targetFile;
-                }
-            }
+    public function getImage(mysqli $connection, string $filePath): string {
+        if (!file_exists($filePath)) {
+            echo "Файл не найден.";
+            return null;
         }
-        return null;
-    }
 
-    // Добавляет новый товар в таблицу
-    public static function add(mysqli $connection, Product $product) {
-        $id = $product->getId();
-        $name = $product->getName();
-        $description = $product->getDescription();
-        $price = $product->getPrice();
-        $stockQuantity = $product->getStockQuantity();
-        $brandId = $product->getBrandId();
-        $image = $product->getImage($connection, $product->getImageName());
-        $sql = "INSERT INTO product VALUES ($id, '$name', '$description', $price, $stockQuantity, $brandId, $image);";
-        $connection->query($sql);
+        $check = getimagesize($filePath);
+        if ($check === false) {
+            echo "Файл не является изображением.";
+            return null;
+        }
+
+        $imageData = file_get_contents($filePath);
+        return $imageData;
     }
 
     // Удаляет товар из таблицы
@@ -142,6 +91,27 @@ class Product {
         $id = $product->getId();
         $sql = "DELETE FROM product WHERE id = $id";
         $connection->query($sql);
+    }
+
+    public static function add(mysqli $connection, Product $product) {
+        $id = $product->getId();
+        $name = $product->getName();
+        $description = $product->getDescription();
+        $price = $product->getPrice();
+        $stockQuantity = $product->getStockQuantity();
+        $brandId = $product->getBrandId();
+        $image = $product->getFilePath();
+
+        $sql = $connection->prepare("INSERT INTO product (id, name, description, price, stock_quantity, brand_id, image) VALUES (?, ?, ?, ?, ?, ?, ?);");
+        if ($sql) {
+            $sql->bind_param("issdiis", $id, $name, $description, $price, $stockQuantity, $brandId, $image);
+            if (!$sql->execute()) {
+                echo "Ошибка при загрузке изображения в базу данных.";
+            }
+            $sql->close();
+        } else {
+            echo "Ошибка подготовки запроса: " . $connection->error;
+        }
     }
 
     // Обновляет запись
@@ -152,9 +122,25 @@ class Product {
         $price = $product->getPrice();
         $stockQuantity = $product->getStockQuantity();
         $brandId = $product->getBrandId();
-        //$image = $product->getImage($connection, $product->getImageName());
-        $sql = "UPDATE product SET name = '$name', description = '$description', price = '$price', stock_quantity = $stockQuantity, brand_id = $brandId WHERE id = $id;";
-        $connection->query($sql);
+        $image = $product->getFilePath();
+
+        $sql = $connection->prepare("UPDATE product SET name = ?, description = ?, price = ?, stock_quantity = ?, brand_id = ?, image = ? WHERE id = ?;");
+        if ($sql) {
+            $sql->bind_param("ssdiisi",$name, $description, $price, $stockQuantity, $brandId, $image, $id);
+            if (!$sql->execute()) {
+                echo "Ошибка при загрузке изображения в базу данных.";
+            }
+            $sql->close();
+        } else {
+            echo "Ошибка подготовки запроса: " . $connection->error;
+        }
+    }
+
+    // Получает один товар по id
+    public static function getProduct(mysqli $connection, int $id): array {
+        $sql = "SELECT * FROM product WHERE id = $id";
+        $data = $connection->query($sql);
+        return $data->fetch_all(MYSQLI_NUM);
     }
 
     // Получает данные из таблицы
