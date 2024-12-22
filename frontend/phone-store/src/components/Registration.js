@@ -1,30 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../pages/styles/login.css';
+import '../pages/styles/registration.css';
 
-function Login({ onLogin }) {
+function Registration({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleRegistration = (e) => {
     e.preventDefault();
     const formData = new FormData()
     formData.append('username', username)
     formData.append('password', password)
+    formData.append('phone', phone)
 
-    fetch(`http://my-site.ru/loginProcessing.php`, {
+    fetch(`http://my-site.ru/regProcessing.php`, {
       method: 'POST', 
       body: formData
     })
     .then((e)=>e.json())
-    .then((e)=>{
+    .then((e)=> {
       if (e.success) {
-        localStorage.setItem('userId', e.id);
         navigate('/');
       }
       else {
-        alert('Неправильный логин или пароль');
+        alert('Такой логин занят');
       }
     })
   };
@@ -36,7 +37,7 @@ function Login({ onLogin }) {
       </div>
 
       <div className='form'>
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegistration}>
         <label>
           Логин:
           <input
@@ -53,7 +54,15 @@ function Login({ onLogin }) {
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        <button type="submit">Войти</button>
+        <label>
+          Номер телефона:
+          <input
+            type="text"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </label>
+        <button type="submit">Зарегистрироваться</button>
       </form>
       </div>
     </div>
@@ -61,4 +70,4 @@ function Login({ onLogin }) {
   );
 }
 
-export default Login;
+export default Registration;
